@@ -1,8 +1,13 @@
 use color_eyre::eyre;
 use serde::{de, Deserialize};
 
-fn main() -> eyre::Result<()> {
+#[tokio::main]
+async fn main() -> eyre::Result<()> {
     color_eyre::install()?;
+
+    let config = aws_config::from_env().load().await;
+
+    dbg!(config.region());
 
     let pokemon = csv::Reader::from_path(
         "./crates/upload-pokemon-data/pokemon.csv",
