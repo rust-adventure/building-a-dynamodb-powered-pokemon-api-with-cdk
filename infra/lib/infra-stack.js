@@ -1,5 +1,4 @@
-const { Stack, Duration } = require('aws-cdk-lib');
-// const sqs = require('aws-cdk-lib/aws-sqs');
+const { Stack, aws_dynamodb } = require("aws-cdk-lib");
 
 class InfraStack extends Stack {
   /**
@@ -11,13 +10,14 @@ class InfraStack extends Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
-
-    // example resource
-    // const queue = new sqs.Queue(this, 'InfraQueue', {
-    //   visibilityTimeout: Duration.seconds(300)
-    // });
+    const pokemonTable = new aws_dynamodb.Table(this, "PokemonTable", {
+      billingMode: aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: {
+        name: "pk",
+        type: aws_dynamodb.AttributeType.STRING,
+      },
+    });
   }
 }
 
-module.exports = { InfraStack }
+module.exports = { InfraStack };
