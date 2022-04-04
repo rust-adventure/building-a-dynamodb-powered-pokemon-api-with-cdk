@@ -1,4 +1,4 @@
-const { Stack, aws_dynamodb } = require("aws-cdk-lib");
+const { Stack, aws_dynamodb, aws_lambda } = require("aws-cdk-lib");
 
 class InfraStack extends Stack {
   /**
@@ -16,6 +16,15 @@ class InfraStack extends Stack {
         name: "pk",
         type: aws_dynamodb.AttributeType.STRING,
       },
+    });
+
+    // https://aws.amazon.com/amazon-linux-2/faqs/
+    // AL2 holds libc 2.26
+    const pokemonLambda = new aws_lambda.Function(this, "PokemonHandler", {
+      runtime: aws_lambda.Runtime.PROVIDED_AL2,
+      handler: "pokemon-handler",
+      code: aws_lambda.Code.fromAsset("../lambdas/pokemon-api"),
+      memorySize: 1024,
     });
   }
 }
