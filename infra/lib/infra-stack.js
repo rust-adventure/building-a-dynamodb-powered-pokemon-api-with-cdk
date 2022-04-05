@@ -29,6 +29,9 @@ class InfraStack extends Stack {
       memorySize: 1024,
     });
 
+    pokemonTable.grantFullAccess(pokemonLambda);
+    pokemonLambda.addEnvironment("POKEMON_TABLE", pokemonTable.tableName);
+
     const pokemonIntegration = new integrations.HttpLambdaIntegration(
       "PokemonIntegration",
       pokemonLambda
