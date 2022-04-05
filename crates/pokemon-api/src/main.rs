@@ -18,18 +18,37 @@ async fn main() -> Result<(), Error> {
 async fn handler(
     event: LambdaEvent<ApiGatewayV2httpRequest>,
 ) -> Result<ApiGatewayV2httpResponse, Error> {
-    let (_event, _context) = event.into_parts();
+    let (event, _context) = event.into_parts();
 
-    Ok(ApiGatewayV2httpResponse {
-        status_code: 200,
-        headers: HeaderMap::new(),
-        multi_value_headers: HeaderMap::new(),
-        body: Some(Body::Text(serde_json::to_string(
-            &json!({
-                "data": {}
-            }),
-        )?)),
-        is_base64_encoded: Some(false),
-        cookies: vec![],
-    })
+    match event.path_parameters.get("pokemon") {
+        None => Ok(ApiGatewayV2httpResponse {
+            status_code: 400,
+            headers: HeaderMap::new(),
+            multi_value_headers: HeaderMap::new(),
+            body: Some(Body::Text(serde_json::to_string(
+                &json!({
+                    "err": "No pokemon requested",
+                    "data": {}
+                }),
+            )?)),
+            is_base64_encoded: Some(false),
+            cookies: vec![],
+        }),
+        Some(pokemon_requested) => {
+            Ok(ApiGatewayV2httpResponse {
+                status_code: 200,
+                headers: HeaderMap::new(),
+                multi_value_headers: HeaderMap::new(),
+                body: Some(Body::Text(
+                    serde_json::to_string(&json!({
+                        "data": {
+                            "requested": pokemon_requested
+                        }
+                    }))?,
+                )),
+                is_base64_encoded: Some(false),
+                cookies: vec![],
+            })
+        }
+    }
 }
