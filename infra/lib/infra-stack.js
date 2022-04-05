@@ -1,4 +1,6 @@
-const { Stack, aws_dynamodb, aws_lambda } = require("aws-cdk-lib");
+const { Stack, CfnOutput, aws_dynamodb, aws_lambda } = require("aws-cdk-lib");
+const integrations = require("@aws-cdk/aws-apigatewayv2-integrations-alpha");
+const apigateway = require("@aws-cdk/aws-apigatewayv2-alpha");
 
 class InfraStack extends Stack {
   /**
@@ -25,6 +27,32 @@ class InfraStack extends Stack {
       handler: "pokemon-handler",
       code: aws_lambda.Code.fromAsset("../lambdas/pokemon-api"),
       memorySize: 1024,
+    });
+
+    const pokemonIntegration = new integrations.HttpLambdaIntegration(
+      "PokemonIntegration",
+      pokemonLambda
+    );
+
+    const httpApi = new apigateway.HttpApi(this, "pokemon-api");
+    httpApi.addRoutes({
+      path: "/pokemon/{pokemon}",
+      methods: [apigateway.HttpMethod.GET],
+      integration: pokemonIntegration,
+    });
+
+    new CfnOutput(this, "pokemonTable", {
+      value: pokemonTable.tableName,
+      description: "The name of the DynamoDB Table",
+    });
+
+    new CfnOutput(this, "pokemonLambda", {
+      value: pokemonLambda.functionName,
+      description: "The name of the Pokemon Lambda",
+    });
+    new CfnOutput(this, "pokemonBaseUrl", {
+      value: httpApi.apiEndpoint,
+      description: "The root URL for the pokemon endpoint",
     });
   }
 }
